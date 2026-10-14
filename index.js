@@ -132,7 +132,6 @@ updateTyping();
 
 const homeSection = document.querySelector('.home');
 const bubbleLayer = document.querySelector('.home-orbs');
-const bubbleMotionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
 const bubbleColors = ['95, 151, 255', '138, 72, 255', '60, 220, 232'];
 const bubbles = [];
 const bubblePairStates = new Map();
@@ -267,7 +266,7 @@ function resizeBubbles() {
 
 function animateBubbles(time) {
     bubbleFrame = 0;
-    if (!bubbleLayerVisible || document.hidden || bubbleMotionPreference.matches) return;
+    if (!bubbleLayerVisible || document.hidden) return;
 
     const bounds = bubbleLayer.getBoundingClientRect();
     const deltaTime = previousBubbleTime ? Math.min((time - previousBubbleTime) / 1000, 0.04) : 0;
@@ -397,20 +396,9 @@ if (homeSection && bubbleLayer) {
         pointerInsideHero = false;
     });
 
-    const motionPreferenceChanged = () => {
-        if (bubbleMotionPreference.matches && bubbleFrame) {
-            cancelAnimationFrame(bubbleFrame);
-            bubbleFrame = 0;
-        } else if (!bubbleMotionPreference.matches && bubbleLayerVisible && !bubbleFrame) {
-            previousBubbleTime = 0;
-            bubbleFrame = requestAnimationFrame(animateBubbles);
-        }
-    };
-    bubbleMotionPreference.addEventListener('change', motionPreferenceChanged);
-
     const bubbleObserver = new IntersectionObserver(([entry]) => {
         bubbleLayerVisible = entry.isIntersecting;
-        if (bubbleLayerVisible && !document.hidden && !bubbleMotionPreference.matches && !bubbleFrame) {
+        if (bubbleLayerVisible && !document.hidden && !bubbleFrame) {
             previousBubbleTime = 0;
             bubbleFrame = requestAnimationFrame(animateBubbles);
         } else if (!bubbleLayerVisible && bubbleFrame) {
@@ -424,7 +412,7 @@ if (homeSection && bubbleLayer) {
         if (document.hidden && bubbleFrame) {
             cancelAnimationFrame(bubbleFrame);
             bubbleFrame = 0;
-        } else if (!document.hidden && bubbleLayerVisible && !bubbleMotionPreference.matches && !bubbleFrame) {
+        } else if (!document.hidden && bubbleLayerVisible && !bubbleFrame) {
             previousBubbleTime = 0;
             bubbleFrame = requestAnimationFrame(animateBubbles);
         }
