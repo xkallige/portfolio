@@ -93,6 +93,53 @@ themeToggle.addEventListener('click', () => {
     applyTheme(nextTheme);
 });
 
+const contactForm = document.getElementById('contactForm');
+if (contactForm) {
+    const submitButton = contactForm.querySelector('button[type="submit"]');
+    const submitLabel = submitButton.querySelector('span');
+    const formStatus = document.getElementById('contactFormStatus');
+
+    contactForm.addEventListener('submit', async event => {
+        event.preventDefault();
+        if (!contactForm.reportValidity()) return;
+
+        submitButton.disabled = true;
+        submitButton.setAttribute('aria-busy', 'true');
+        submitLabel.textContent = 'Sending…';
+        formStatus.textContent = 'Sending your message securely…';
+        formStatus.dataset.state = 'sending';
+
+        try {
+            const formData = new FormData(contactForm);
+            const payload = Object.fromEntries(formData.entries());
+            const response = await fetch('https://formsubmit.co/ajax/goodnesseche1@gmail.com', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            });
+            const result = await response.json();
+
+            if (!response.ok || result.success === false || result.success === 'false') {
+                throw new Error(result.message || 'The message could not be sent.');
+            }
+
+            contactForm.reset();
+            formStatus.textContent = 'Message sent successfully. I’ll get back to you soon.';
+            formStatus.dataset.state = 'success';
+        } catch (error) {
+            formStatus.textContent = 'Sorry, your message could not be sent. Please email goodnesseche1@gmail.com directly.';
+            formStatus.dataset.state = 'error';
+        } finally {
+            submitButton.disabled = false;
+            submitButton.removeAttribute('aria-busy');
+            submitLabel.textContent = 'Send Message';
+        }
+    });
+}
+
 const roles = [
     'an Android App Developer',
     'a Full-Stack Web Developer',
