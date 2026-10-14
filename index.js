@@ -258,6 +258,7 @@ function resizeBubbles() {
     const bounds = bubbleLayer.getBoundingClientRect();
 
     bubbles.forEach(bubble => {
+        bubble.radius = bubble.element.offsetWidth / 2;
         bubble.x = Math.max(bubble.radius, Math.min(bounds.width - bubble.radius, bubble.x));
         bubble.y = Math.max(bubble.radius, Math.min(bounds.height - bubble.radius, bubble.y));
         placeBubble(bubble);
@@ -372,8 +373,16 @@ if (homeSection && bubbleLayer) {
     const initialVelocities = [[54, 31], [-42, 37], [38, -45], [-50, -29]];
     document.querySelectorAll('.home-orbs .orb').forEach((element, index) => {
         const [xRatio, yRatio] = initialBubblePositions[index] || [Math.random(), Math.random()];
-        const [vx, vy] = initialVelocities[index] || [40, -35];
-        addBubble(element, bounds.width * xRatio, bounds.height * yRatio, vx, vy);
+        const [baseVx, baseVy] = initialVelocities[index] || [40, -35];
+        const radius = element.offsetWidth / 2;
+        const isNarrow = bounds.width <= 640;
+        const x = isNarrow
+            ? (index % 2 === 0 ? radius + 8 : bounds.width - radius - 8)
+            : bounds.width * xRatio;
+        const yRatioForViewport = isNarrow ? [0.11, 0.18, 0.84, 0.9][index] : yRatio;
+        const y = Math.max(radius + 8, Math.min(bounds.height - radius - 8, bounds.height * yRatioForViewport));
+        const velocityScale = isNarrow ? 0.72 : 1;
+        addBubble(element, x, y, baseVx * velocityScale, baseVy * velocityScale);
     });
 
     homeSection.addEventListener('pointermove', event => {
